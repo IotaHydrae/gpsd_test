@@ -23,27 +23,26 @@ int main(int argc, const char *argv[])
     while (1)
     {
         /* read data */
-        if ((rc = gps_read(&gps_data, NULL, 0)) == -1)
+        if ((rc = gps_read(&gps_data)) == -1)
         {
             printf("error occured reading gps data. code: %d, reason: %s\n", rc, gps_errstr(rc));
         }
         else
         {
             gettimeofday(&tv, NULL);
-			printf("tv: %d\n", tv.tv_sec);
+			printf("tv: %ld\n", tv.tv_sec);
             /* Check if get a fix data, Not verified */
-            if (gps_data.fix.status >= STATUS_FIX && gps_data.fix.mode == MODE_2D) /* MODE_2D good for latitude/longitude */
+            if (gps_data.fix.mode == MODE_2D) /* MODE_2D good for latitude/longitude */
             {
-                if (gps_data.fix.status == STATUS_TIME)
-                {
-                    printf("tv_secs: %d\n", gps_data.fix.time.tv_sec);
-                    printf("Time:%d,%d %d:%d",
-                           gps_data.ais.type5.month, gps_data.ais.type5.day,
-                           gps_data.ais.type5.hour, gps_data.ais.type5.minute);
-                }
 
-                printf("Longitude: %d, Latitude: %d\n \
-                        Altitude : %d,    Speed: %d\n",
+                printf("tv_secs: %f\n", gps_data.fix.time);
+                printf("Time:%d,%d %d:%d",
+                        gps_data.ais.type5.month, gps_data.ais.type5.day,
+                        gps_data.ais.type5.hour, gps_data.ais.type5.minute);
+
+
+                printf("Longitude: %f, Latitude: %f\n \
+                        Altitude : %f,    Speed: %f\n",
                        gps_data.fix.longitude, gps_data.fix.latitude,
                        gps_data.fix.altitude, gps_data.fix.speed);
             }
@@ -55,7 +54,7 @@ int main(int argc, const char *argv[])
             for (int i = 0; i < gps_data.satellites_visible; i++)
             {
                 printf("SV type:");
-                switch (gps_data.skyview[i].gnssid)
+                switch (gps_data.skyview[i].PRN)
                 {
                 default:
                     printf("Not detect any start.\n");
@@ -82,8 +81,7 @@ int main(int argc, const char *argv[])
                     printf("Glonass, ");
                     break;
                 }
-                printf("SVID: %d, SNR: %d, Elevation: %f\n",
-                       gps_data.skyview[i].svid,
+                printf("SNR: %d, Elevation: %d\n",
                        (int)gps_data.skyview[i].ss,
                        gps_data.skyview[i].elevation);
             }
@@ -96,3 +94,4 @@ int main(int argc, const char *argv[])
 
     return 0;
 }
+
